@@ -76,6 +76,17 @@ bool HelloWorld::init()
     return true;
 }
 
+void HelloWorld::onEnterTransitionDidFinish()
+{
+    Node::onEnterTransitionDidFinish();
+    
+    this->runAction(this->myActionA());
+    // myActionA executed only one. It's expected result.
+    
+    this->runAction(this->myActionB());
+    // myActionB executed twice. This is issue.
+}
+
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {
@@ -93,3 +104,20 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
     
     
 }
+
+cocos2d::FiniteTimeAction* HelloWorld::myActionA()
+{
+    return CallFunc::create([this](){
+        CCLOG("myActionA: %d", this->callCountA);
+        this->callCountA++;
+    });
+}
+
+cocos2d::FiniteTimeAction* HelloWorld::myActionB()
+{
+    return TargetedAction::create(this, CallFunc::create([this](){
+        CCLOG("myActionB: %d", callCountB);
+        callCountB++;
+    }));
+}
+
